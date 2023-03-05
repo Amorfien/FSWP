@@ -15,11 +15,13 @@ final class WallpaperViewController: UIViewController {
 
     private var imageWidth: CGFloat = 0
     private var imageHeight: CGFloat = 0
+    private var multiply: CGFloat = 0
 
     private lazy var wpImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.isUserInteractionEnabled = true
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
+        imageView.tintColor = #colorLiteral(red: 0.9098039269, green: 0.4784313738, blue: 0.6431372762, alpha: 1)
         imageView.image = UIImage(systemName: "scribble.variable")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -36,13 +38,13 @@ final class WallpaperViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .darkGray
+        multiply = UIScreen.main.scale
+        self.view.backgroundColor = #colorLiteral(red: 0.05882352963, green: 0.180392161, blue: 0.2470588237, alpha: 1)
         self.imageWidth = UIScreen.main.bounds.width
         self.imageHeight = UIScreen.main.bounds.height
         constrains()
         setupGestures()
         tapGesture()
-
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -67,8 +69,17 @@ final class WallpaperViewController: UIViewController {
         self.wpImageView.addGestureRecognizer(longPressGestureRecognizer)
     }
     @objc private func tapGesture() {
-        apiManager.getImage(imageView: wpImageView, width: 2 * imageWidth, height: 2 * imageHeight, mode: mode)
-//        print(imageWidth, imageHeight)
+        apiManager.getImage(width: multiply * imageWidth, height: multiply * imageHeight, mode: mode) { result in
+            switch result {
+            case .success(let data):
+                DispatchQueue.main.async {
+                    self.wpImageView.image = UIImage(data: data)
+                }
+            case .failure(_):
+                break
+            }
+        }
+//        print(multiply * imageWidth, multiply * imageHeight)
     }
 
     @objc private func longPress() {

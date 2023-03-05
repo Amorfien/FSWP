@@ -5,11 +5,11 @@
 //  Created by Pavel Grigorev on 24.02.2023.
 //
 
-import UIKit
+import Foundation
 
 final class APIManager {
 
-    func getImage(imageView: UIImageView, width: CGFloat, height: CGFloat, mode: Mode) {
+    func getImage(width: CGFloat, height: CGFloat, mode: Mode, completion: @escaping (Result<Data, Error>) -> ()) {
         let tunnel = "https://"
         let server = "picsum.photos"
         let endpoint = "/\(Int(width))/\(Int(height))"
@@ -17,12 +17,15 @@ final class APIManager {
         guard let apiURL = URL(string: urlStr) else {
             fatalError("some Error")
         }
-        let session = URLSession.shared//(configuration: .default)
+        let session = URLSession.shared
         let task = session.dataTask(with: apiURL) { data, response, error in
-            guard let data, error == nil else { return }
-            DispatchQueue.main.async {
-                imageView.image = UIImage(data: data)
+            guard let data else {
+                if let error {
+                    completion(.failure(error))
+                }
+                return
             }
+            completion(.success(data))
         }
         task.resume()
     }
