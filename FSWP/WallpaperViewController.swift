@@ -7,13 +7,6 @@
 
 import UIKit
 
-enum Mode: String {
-    case standart = ""
-    case grayscale = "/?grayscale"
-    case blur1 = "/?blur=2"
-    case blur2 = "/?blur=5"
-}
-
 final class WallpaperViewController: UIViewController {
 
     private var mode: Mode = .standart
